@@ -4,9 +4,9 @@ output:
   prettydoc::html_pretty:
     theme: architect
     toc: true
-    number_sections: false
-author: "VOTRE NOM ICI"
-date: "2024-03-06"
+    number_sections: True
+author: "Ntumba Nkengesha Nella"
+date: "2025-09-25"
 editor_options: 
   chunk_output_type: inline
   markdown: 
@@ -55,7 +55,11 @@ Pour commencer, **chargez les packages nécessaires** : {tidyverse}, {here}, {pl
 
 ```{r}
 # Charger les packages
-"ÉCRIVEZ_VOTRE_CODE_ICI"
+# Charger les packages nécessaires
+library(tidyverse)
+library(here)
+library(plotly)
+library(gapminder)
 ```
 
 # Données Gapminder
@@ -66,10 +70,14 @@ Exécutez le code suivant pour charger le cadre de données `gapminder` du packa
 
 ```{r message = FALSE}
 # Indiquez à R d'obtenir le cadre de données intégré du package
+# Charger les données
 data(gapminder, package="gapminder")
-
-# Afficher le cadre de données
 gapminder
+
+# Structure et résumé
+glimpse(gapminder)
+summary(gapminder)
+
 ```
 
 Chaque ligne de ce tableau correspond à une combinaison pays-année. Pour chaque ligne, nous avons 6 colonnes :
@@ -110,15 +118,15 @@ Nous pouvons utiliser les fonctions {dplyr} pour manipuler l'ensemble de donnée
 # Créer un nouveau data frame appelé gapminder07
 gapminder07 <- gapminder %>%
   # FILTRER le data frame pour inclure uniquement les lignes de 2007
-  "ÉCRIVEZ_VOTRE_CODE_ICI" %>%
+  filter(year == 2007) %>% 
   # RETIRER la colonne year
-  "ÉCRIVEZ_VOTRE_CODE_ICI" %>%
+  select(-year) %>%
   # RENOMMER les colonnes pour les rendre plus compréhensibles
   rename(life_expectancy = lifeExp,
          population = pop,
          gdp_per_capita = gdpPercap) %>% 
   # RÉORGANISER le jeu de données par taille DESCENDANTE de la population (ceci sera utile pour le tracé ultérieur)
-  "ÉCRIVEZ_VOTRE_CODE_ICI"
+  arrange(desc(population)) 
 
 # Afficher le nouveau sous-ensemble de données
 gapminder07
@@ -136,7 +144,9 @@ Créez un graphique de dispersion, avec le PIB sur l'axe des x et l'espérance d
 
 ```{r}
 # Graphique de dispersion simple
-"ÉCRIVEZ_VOTRE_CODE_ICI"
+ggplot(gapminder07, aes(x = gdp_per_capita, y = life_expectancy)) +
+  geom_point()
+
 ```
 
 Examinons ce graphique à travers la grammaire des graphiques :
@@ -180,14 +190,14 @@ Par exemple, vous pouvez ajouter une ligne de meilleure ajustement à votre grap
 
 ```{r}
 # Ajouter une nouvelle couche au graphique de dispersion simple
-gap_plot_base + 
+gap_plot_02 <-gap_plot_base + 
   geom_smooth()
 
 # Enregistrer le nouveau graphique en tant qu'objet
-gap_plot_02 <- "ÉCRIVEZ_VOTRE_CODE_ICI"
+gap_plot_02 <- gap_plot_base + geom_smooth()
 
 # Appeler le nouveau graphique
-"ÉCRIVEZ_VOTRE_CODE_ICI"
+gap_plot_02
 ```
 
 Plus tard dans l'exercice, vous devrez créer et stocker des graphiques en tant qu'objets.
@@ -202,7 +212,11 @@ Ajoutez maintenant une variable supplémentaire, `population`, et mappez-la à l
 
 ```{r}
 # Créer un graphique à bulles
-"ÉCRIVEZ_VOTRE_CODE_ICI"
+ggplot(gapminder07, aes(x = gdp_per_capita,
+                        y = life_expectancy,
+                        size = population)) +
+  geom_point()
+
 ```
 
 Ici, la population de chaque pays est représentée par la taille des points. La légende sera automatiquement construite par {ggplot2}, montrant comment la taille des points varie avec la taille de la population.
@@ -213,7 +227,14 @@ Maintenant, colorons les bulles par continent.
 
 ```{r}
 # Ajouter de la couleur aux points
-"ÉCRIVEZ_VOTRE_CODE_ICI"
+gap_bubble <- ggplot(gapminder07, aes(x = gdp_per_capita,
+                                      y = life_expectancy,
+                                      size = population,
+                                      color = continent)) +
+  geom_point(alpha = 0.5)  # opacité 50%
+
+gap_bubble
+
 ```
 
 Rappelez-vous lorsque nous avons arrangé la variable de population de `gapminder07` par ordre décroissant (du plus grand au plus petit). C'est pour que les plus petits cercles/bulles soient tracés au-dessus des plus grands cercles/bulles. Si nous n'avions pas arrangé la variable `population`, les points plus petits auraient été couverts par les points plus grands.
@@ -221,14 +242,20 @@ Rappelez-vous lorsque nous avons arrangé la variable de population de `gapminde
 Cependant, beaucoup de points se chevauchent encore, nous pouvons donc réduire l'opacité des points. Changez l'opacité des points à 50%.
 
 ```{r}
-"ÉCRIVEZ_VOTRE_CODE_ICI"
+gap_bubble02 <- gap_bubble +
+  scale_size(range = c(1, 20))
+
+gap_bubble02
+
 ```
 
 Stockez le dernier graphique en tant qu'objet.
 
 ```{r}
 # Enregistrer le graphique en tant qu'objet nommé
-gap_bubble <- "ÉCRIVEZ_VOTRE_CODE_ICI"
+
+gap_bubble <- gap_bubble02
+
 ```
 
 Vérifiez que `gap_bubble` apparaît dans votre volet Environnement.
@@ -262,7 +289,8 @@ Dans {ggplot2}, nous pouvons transformer l'axe des x en utilisant `scale_x_log10
 
 ```{r}
 gap_bubble03 <- gap_bubble02 +
-  "ÉCRIVEZ_VOTRE_CODE_ICI"
+  scale_x_log10()
+
 
 gap_bubble03
 ```
@@ -291,7 +319,9 @@ Votre tâche pour cette section est de découvrir comment utiliser cette fonctio
 
 ```{r}
 # Créer un graphique interactif
-"ÉCRIVEZ_VOTRE_CODE_ICI"
+gap_bubble_interactive <- ggplotly(gap_bubble03)
+gap_bubble_interactive
+
 ```
 
 Nous ne pouvons pas enregistrer ce graphique interactif avec `ggsave()`. Pour cela, nous aurons besoin de la fonction `saveWidget()` du package {htmlwidgets}.
@@ -300,7 +330,11 @@ Recherchez sur le web comment utiliser cette fonction et enregistrez votre graph
 
 ```{r}
 # Enregistrer le graphique plotly
-"ÉCRIVEZ_VOTRE_CODE_ICI"
+gap_bubble_interactive <- ggplotly(gap_bubble03)
+gap_bubble_interactive
+library(htmlwidgets)
+saveWidget(gap_bubble_interactive, file = here("images", "gap_bubble_interactive.html"))
+
 ```
 
 # Conclusion
@@ -322,7 +356,26 @@ La date limite pour l'exercice est le **vendredi 8 mars à 23h59 UTC**.
 Maintenant, c'est à votre tour de créer un graphique à bulles animé en utilisant le package {gganimate} ! Familiarisez-vous avec le package {gganimate} disponible ici : <https://gganimate.com/>. La page d'accueil du site Web contient en fait une grande partie du code dont vous aurez besoin pour ce graphique à bulles Gapminder.
 
 ```{r}
-"ÉCRIVEZ_VOTRE_CODE_ICI"
+# install.packages("gganimate") # à exécuter si pas encore installé
+library(gganimate)
+
+gap_bubble_anim <- ggplot(gapminder,
+                          aes(x = gdpPercap,
+                              y = lifeExp,
+                              size = pop,
+                              color = continent)) +
+  geom_point(alpha = 0.6) +
+  scale_x_log10() +
+  transition_time(year) +
+  labs(title = "Année : {frame_time}",
+       x = "PIB par habitant (log10)",
+       y = "Espérance de vie",
+       size = "Population")
+
+# Sauvegarde animation
+# animate(gap_bubble_anim, renderer = gifski_renderer())
+# anim_save("images/gap_bubble_anim.gif")
+
 ```
 
 Voici les étapes de base :
